@@ -1,0 +1,2 @@
+module BrotliDeflater
+end
