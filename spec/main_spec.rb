@@ -1,4 +1,6 @@
 require 'spec_helper'
+require 'stringio'
+require 'brotli'
 
 describe Rack::BrotliDeflater do
   let(:base_app) do
@@ -19,26 +21,43 @@ describe Rack::BrotliDeflater do
     {}
   end
 
-  let(:base_env) do
-    {
-      "REQUEST_METHOD" => "GET",
-      "PATH_INFO" => "/test"
-    }
-  end
-
   let(:response) do
-    get "/test"
+    get "/test", nil, headers
   end
 
   describe "gzip encoding" do
-    let(:env) do
-      base_env.merge({
-
-      })
+    let(:headers) do
+      {
+        "HTTP_ACCEPT_ENCODING" => "gzip, deflate"
+      }
     end
 
     it "returns the correct headers" do
-      expect(response.headers).not_to be_nil
+      expect(response.headers.fetch("Content-Encoding")).to eq "gzip"
+    end
+
+    it "response is gzip encoded" do
+      decompressed = Zlib::GzipReader.new(
+        StringIO.new(response.body.to_s)
+      ).read
+      expect(decompressed).to eq "Hello World\n"
+    end
+  end
+
+  describe "brotli encoding" do
+    let(:headers) do
+      {
+        "HTTP_ACCEPT_ENCODING" => "gzip, deflate, br"
+      }
+    end
+
+    it "returns the correct headers" do
+      expect(response.headers.fetch("Content-Encoding")).to eq "br"
+    end
+
+    it "response is brotli encoded" do
+      decompressed = Brotli.inflate(response.body.to_s)
+      expect(decompressed).to eq "Hello World\n"
     end
   end
 end

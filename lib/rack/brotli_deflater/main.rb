@@ -7,7 +7,12 @@ class Rack::BrotliDeflater
   end
 
   def call(env)
-    dbg env
-    @app.call(env)
+    if env["HTTP_ACCEPT_ENCODING"]&.include?("br")
+      @app.call(@env)
+    elsif env["HTTP_ACCEPT_ENCODING"]&.include?("gzip")
+      Rack::Deflater.new(@app).call(env)
+    else
+      @app.call(@env)
+    end
   end
 end
