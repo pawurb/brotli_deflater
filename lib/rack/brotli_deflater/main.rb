@@ -8,7 +8,15 @@ class Rack::BrotliDeflater
 
   def call(env)
     if env["HTTP_ACCEPT_ENCODING"]&.include?("br")
-      @app.call(@env)
+      status, headers, body = @app.call(env)
+
+      [
+        status,
+        headers.merge("Content-Encoding" => "br"),
+        body.map do |chunk|
+          Brotli.deflate(chunk)
+        end
+      ]
     elsif env["HTTP_ACCEPT_ENCODING"]&.include?("gzip")
       Rack::Deflater.new(@app).call(env)
     else
