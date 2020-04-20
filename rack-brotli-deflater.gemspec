@@ -9,7 +9,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["contact@pawelurbanek.com"]
   gem.summary       = %q{ Brotli Gzip Deflater Middleware }
   gem.description   = %q{ Brotli Gzip Deflater Middleware }
-  gem.homepage      = "http://github.com/pawurb/brotli_deflater"
+  gem.homepage      = "http://github.com/pawurb/rack-brotli-deflater"
   gem.files         = `git ls-files`.split("\n")
   gem.test_files    = gem.files.grep(%r{^(spec)/})
   gem.require_paths = ["lib"]
